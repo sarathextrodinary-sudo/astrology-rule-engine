@@ -1,35 +1,15 @@
-name: Build Android APK
+# 1. Ensure gradlew is executable inside the android folder
+      - name: Grant execute permission for gradlew
+        run: chmod +x android/gradlew
 
-on:
-  push:
-    branches: [ "main" ]
-  workflow_dispatch: # Allows manual trigger from GitHub UI
+      # 2. Run Gradle from inside the android directory
+      - name: Build APK with Gradle
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Grant Execute Permission to Gradle Wrapper
-        run: chmod +x gradlew
-
-      - name: Build Debug APK
-        run: ./gradlew assembleDebug --stacktrace
-
-      - name: Upload APK as Artifact
+      # 3. Upload the generated debug APK
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-debug-apk
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: android/app/build/outputs/apk/debug/*.apk
