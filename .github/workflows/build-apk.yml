@@ -19,11 +19,11 @@ jobs:
           node-version: 22
           cache: 'npm'
 
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
 
       - name: Install dependencies & build web assets
         run: |
@@ -42,12 +42,10 @@ jobs:
           elif [ -f "public/index.html" ]; then
             WEB_DIR="public"
           elif [ -f "index.html" ]; then
-            # If the web app is at root, create a dedicated bundle folder
             mkdir -p app_dist
             cp -r index.html css js assets app_dist/ 2>/dev/null || cp -r * app_dist/ 2>/dev/null || true
             WEB_DIR="app_dist"
           else
-            # Fallback placeholder to prevent build crash
             mkdir -p dist
             echo "<!DOCTYPE html><html><head><title>App</title></head><body>App initialized</body></html>" > dist/index.html
             WEB_DIR="dist"
@@ -55,7 +53,6 @@ jobs:
 
           echo "Using web directory: $WEB_DIR"
 
-          # Write capacitor config with correct webDir
           cat <<EOF > capacitor.config.json
           {
             "appId": "com.astrology.ruleengine",
@@ -64,7 +61,6 @@ jobs:
           }
           EOF
 
-          # Add and sync android platform
           if [ ! -d "android" ]; then
             npx cap add android
           fi
