@@ -13,10 +13,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Set up Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 22
           cache: 'npm'
 
       - name: Set up JDK 17
@@ -30,9 +30,16 @@ jobs:
           npm install
           npm run build --if-present
 
-      - name: Ensure Capacitor Android is present & synced
+      - name: Setup Capacitor and Android Platform
         run: |
           npm install @capacitor/core @capacitor/cli @capacitor/android
+          
+          # Initialize capacitor config if not present
+          if [ ! -f "capacitor.config.json" ] && [ ! -f "capacitor.config.ts" ]; then
+            npx cap init "Astrology Rule Engine" "com.astrology.ruleengine" --web-dir dist
+          fi
+
+          # Add and sync android platform
           if [ ! -d "android" ]; then
             npx cap add android
           fi
